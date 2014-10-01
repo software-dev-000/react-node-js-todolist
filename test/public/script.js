@@ -3,14 +3,14 @@
 var TodoBox = React.createClass({
     loadTodosFromServer: function() {
         $.ajax({
-          url: "http://localhost:8080/getTodolist.json",
-          dataType: 'json',
-          success: function(data) {
-              this.setState({data: data});
-          }.bind(this),
-          error: function(xhr, status, err) {
-              console.error(this.props.url, status, err.toString());
-          }.bind(this)
+            url: "http://localhost:8080/getTodolist.json",
+            dataType: 'json',
+            success: function(data) {
+                this.setState({data: data});
+            }.bind(this),
+                error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
         });
     },
     
@@ -25,14 +25,36 @@ var TodoBox = React.createClass({
     handleTodoSubmit: function(todo) {
         var todos = this.state.data;
         todos.push(todo);
-        this.setState({data: todos})
+        this.setState({data: todos}, function() {
+            $.ajax({
+                url: "http://localhost:8080/add.json",
+                dataType: 'json',
+                type: 'POST',
+                data: todo,
+                success: function(data) {
+                    this.setState({data: data});
+                }.bind(this),
+                    error: function(xhr, status, err) {
+                    console.error(this.props.url, status, err.toString());
+                }.bind(this)
+            });
+        });
     },
     
     handleTodoDelete: function(todo, e) {
-        var todos = this.state.data;
-        var index = todos.map(function(e) { return e.todoitem; }).indexOf(todo.todoitem);
-        todos.splice(index, 1);
-        this.setState({data: todos})
+        alert(todo.desc);
+        $.ajax({
+            url: "http://localhost:8080/delete.json",
+            dataType: 'json',
+            type: 'POST',
+            data: todo,
+            success: function(data) {
+                this.setState({data: data});
+            }.bind(this),
+                error: function(xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
     },
     
     render: function() {
@@ -51,14 +73,14 @@ var TodoBox = React.createClass({
 var TodoList = React.createClass({
     handleClick: function(e) {
         e.preventDefault();
-        var todo = this.props.todo;
-        alert(todo);
-        this.props.onTodoDelete({todoitem: todo});
+        var todelete = this.props.todo;
+        alert(this.props.todo.desc + ' to delete');
+        this.props.onTodoDelete({desc: todelete});
     },
     
     createItem: function(todo) {
         return (
-            <li><a href="#" onClick={this.props.onTodoDelete.bind(this, todo)}>✘  </a>{todo}</li>
+            <li><a href="#" onClick={this.props.onTodoDelete.bind(this, todo)}>✘  </a>{todo.desc}</li>
         );
     },
     
@@ -79,7 +101,7 @@ var TodoForm = React.createClass({
         if(!newitem) {
             return;
         }
-        this.props.onTodoSubmit({todoitem: newitem});
+        this.props.onTodoSubmit({desc: newitem});
         this.refs.newtodo.getDOMNode().value = '';
         return;
     },

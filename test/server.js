@@ -31,7 +31,11 @@ var Todo = mongoose.model('Todo', todoSchema);
 
 var texts = ["Un texte", "Un autre", "Encore un", "Un dernier"];
 
-app.get('/getTodolist.json', function(req, res) {
+app.get('/', function(req, res) {
+    res.sendFile('index.html');
+})
+
+.get('/getTodolist.json', function(req, res) {
     Todo.find(function(err, todolist) {
         if(err) {
             console.log('Error');
@@ -40,10 +44,11 @@ app.get('/getTodolist.json', function(req, res) {
             res.json(todolist);
         }
     });
-});
+})
 
-/*.post('/add.json', function(req, res) {
-    var newtodo = new Todo({ desc: req.body.newtodo });
+.post('/add.json', function(req, res) {
+    var newtodo = new Todo({ desc: req.body.desc });
+    console.log(req.body.desc + ' added to the list');
 
     if(newtodo.desc != '') {
         newtodo.save(function(err, todo) {
@@ -51,29 +56,41 @@ app.get('/getTodolist.json', function(req, res) {
                 console.log('Error');
                 console.log(err);
             } else {
-                res.end();
+                Todo.find(function(err, todolist) {
+                    if(err) {
+                        console.log('Error');
+                        console.log(err);
+                    } else {
+                        res.json(todolist);
+                    }
+                });
             }
         });
     }
 })
 
-.get('/delete.json', function(req, res) {
-    Todo.findById(req.params.id, function(err, todo) {
-        if(err) {
-            console.log('Error');
-            console.log(err);
-        } else {
-            todo.remove(function(err, todo) {
-                if(err) {
-                    console.log('Error');
-                    console.log(err);
-                } else {
-                  res.redirect('/todo');
-                }
-            });
-        }
-    });
-});*/
+.post('/delete.json', function(req, res) {
+    var todelete = Todo.find({ desc: req.body.desc });
+    console.log('Supprimer ' + req.body.desc);
+    
+    if(todelete.desc != '') {
+        todelete.remove(function(err, todo) {
+            if(err) {
+                console.log('Error');
+                console.log(err);
+            } else {
+                Todo.find(function(err, todolist) {
+                    if(err) {
+                        console.log('Error');
+                        console.log(err);
+                    } else {
+                        res.json(todolist);
+                    }
+                });
+            }
+        });
+    }
+});
 
 app.listen(8080);
 console.log('Listening on port 8080...');
