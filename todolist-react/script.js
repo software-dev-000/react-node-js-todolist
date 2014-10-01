@@ -20,7 +20,7 @@ var TodoBox = React.createClass({
     
     render: function() {
         return (
-            <div className="todolist">
+            <div class="todolist">
                 <h1>Todolist</h1>
                 
                 <TodoList onTodoDelete={this.handleTodoDelete} data={this.state.data} />
@@ -69,7 +69,7 @@ var TodoForm = React.createClass({
     
     render: function() {
         return (
-            <form className="todoForm" onSubmit={this.handleSubmit}>
+            <form class="todoForm" onSubmit={this.handleSubmit}>
                 <input type="text" placeholder="To do..." ref="newtodo" />
                 <input type="submit" value="Submit" />
             </form>
