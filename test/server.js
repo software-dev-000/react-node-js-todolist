@@ -1,9 +1,17 @@
+var http = require('http');
 var express = require('express');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var bodyParser = require('body-parser');
-
 var mongoose = require('mongoose');
+
+var app = express();
+
+app.use(cookieParser())
+.use(session({secret: 'todotopsecret'}))
+.use(bodyParser())
+
+.use(express.static(__dirname + '/public'));
 
 mongoose.connect('mongodb://localhost/todolist');
 
@@ -21,38 +29,51 @@ var todoSchema = mongoose.Schema({
 
 var Todo = mongoose.model('Todo', todoSchema);
 
-var app = express();
+var texts = ["Un texte", "Un autre", "Encore un", "Un dernier"];
 
-app.use(cookieParser())
-.use(session({secret: 'todotopsecret'}))
-.use(bodyParser())
-
-.use(express.static(__dirname + '/public'));
-
-//var text = ["Texte 1", "Un autre texte", "Et encore un", "Le dernier !"];
-
-app.get('/', function(req, res) {
+app.get('/getTodolist.json', function(req, res) {
     Todo.find(function(err, todolist) {
         if(err) {
             console.log('Error');
             console.log(err);
         } else {
-            res.render('index.ejs', {todolist: todolist});
+            res.json(todolist);
         }
     });
 });
 
-app.post('/', function(req, res) {
-    var newtodo = new Todo({desc: req.body.newtodo});
+/*.post('/add.json', function(req, res) {
+    var newtodo = new Todo({ desc: req.body.newtodo });
+
     if(newtodo.desc != '') {
         newtodo.save(function(err, todo) {
             if(err) {
                 console.log('Error');
                 console.log(err);
+            } else {
+                res.end();
             }
         });
     }
-});
+})
+
+.get('/delete.json', function(req, res) {
+    Todo.findById(req.params.id, function(err, todo) {
+        if(err) {
+            console.log('Error');
+            console.log(err);
+        } else {
+            todo.remove(function(err, todo) {
+                if(err) {
+                    console.log('Error');
+                    console.log(err);
+                } else {
+                  res.redirect('/todo');
+                }
+            });
+        }
+    });
+});*/
 
 app.listen(8080);
 console.log('Listening on port 8080...');
