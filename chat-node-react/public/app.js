@@ -9,7 +9,7 @@ var pseudo;
 var ChatBox = React.createClass({
     getInitialState: function() {
         pseudo = prompt("What's your username?");
-        Messages.push({user: 'Connection', text: 'You\'re online'});
+        Messages.push({user: 'Connection', text: 'You\'re online, ' + pseudo});
         socket.emit('new_client', pseudo);
         
         socket.on('message', this.newMessage);
@@ -38,7 +38,8 @@ var ChatBox = React.createClass({
     render: function() {
         return (
             <div class="messagelist">
-                <h1>Chat with socket.io and react.js</h1>
+                <h1>Super Chat</h1>
+                <h3>Using socket.io and react.js</h3>
                 
                 <ChatForm onMessageSubmit={this.handleMessageSubmit} />
 
@@ -66,7 +67,7 @@ var MessageList = React.createClass({
             );
         });
         return (
-            <div class="messageList">
+            <div className="messageList">
                 <h2>Conversation</h2>
                 {messageNodes}
             </div>
@@ -89,9 +90,10 @@ var ChatForm = React.createClass({
     
     render: function() {
         return (
-            <form class="chatForm" onSubmit={this.handleSubmit}>
+            <form className="chatForm" onSubmit={this.handleSubmit}>
                 <input type="text" placeholder="Your message..." size="50" ref="new_message" />
-                <input type="submit" value="Send" />
+                <br/>
+                <input type="submit" value="Send" className="button" />
             </form>
         );
     }
