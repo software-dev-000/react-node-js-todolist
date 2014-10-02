@@ -5,16 +5,24 @@ var io = require('socket.io').listen(server);
 
 app.use(express.static(__dirname + '/public'));
 
-io.sockets.on('connection', function (socket, pseudo) {
+var usersNames = [];
+
+io.sockets.on('connection', function (socket, pseudo) {    
     socket.on('new_client', function(pseudo) {
         console.log('New client: ' + pseudo);
         socket.pseudo = pseudo;
+        usersNames.push(pseudo);
         socket.broadcast.emit('new_client', {pseudo: pseudo});
+        socket.emit('init', {users: usersNames});
     });
     
     socket.on('message', function(message) {
-        console.log('Server get message: ' + message + ' from ' + socket.pseudo);
         socket.broadcast.emit('message', {user: socket.pseudo, text: message});
+    });
+    
+    socket.on('disconnect', function() {
+        socket.broadcast.emit('client_left', {pseudo: socket.pseudo});
+        console.log(socket.pseudo + ' left');
     });
 });
 
