@@ -22,6 +22,7 @@ io.sockets.on('connection', function (socket, pseudo) {
     
     socket.on('disconnect', function() {
         socket.broadcast.emit('client_left', {pseudo: socket.pseudo});
+        usersNames.splice(usersNames.indexOf(socket.pseudo), 1);
         console.log(socket.pseudo + ' left');
     });
 });

@@ -10,7 +10,7 @@ var pseudo;
 var ChatBox = React.createClass({
     getInitialState: function() {
         pseudo = prompt("What's your username?");
-        Messages.push({user: 'CONNECTION', text: 'You\'re online, ' + pseudo});
+        Messages.push({user: 'CONNECTION', text: 'You\'re online, ' + pseudo, date: new Date()});
         socket.emit('new_client', pseudo);
         socket.on('init', this.initialize);
         Users.push(pseudo);
@@ -30,32 +30,32 @@ var ChatBox = React.createClass({
     },
     
     newMessage: function(data) {
-        Messages.unshift(data);
+        Messages.unshift({user: data.user, text: data.text, date: new Date()});
         this.setState({messages: Messages});
     },
     
     newUser: function(data) {
-        Messages.unshift({user: 'NEW USER: ', text: data.pseudo + ' is now online'});
+        Messages.unshift({user: 'NEW USER: ', text: data.pseudo + ' is now online', date: new Date()});
         Users.push(data.pseudo);
         this.setState({messages: Messages, users: Users});
     },
     
     userDisconnect: function(data) {
-        Messages.unshift({user: 'USER LEFT', text: data.pseudo + ' is now offline'});
+        Messages.unshift({user: 'USER LEFT', text: data.pseudo + ' is now offline', date: new Date()});
         var index = Users.indexOf(data.pseudo);
         Users.splice(index, 1);
         this.setState({messages: Messages, users: Users});
     },
     
     handleMessageSubmit: function(message) {
-        Messages.unshift({user: pseudo, text: message.text});
+        Messages.unshift({user: pseudo, text: message.text, date: new Date()});
         this.setState({messages: Messages});
         socket.emit('message', message.text);
     },
     
     render: function() {
         return (
-            <div class="messagelist">
+            <div className="messagelist">
                 <h1>Super Chat</h1>
                 <h3>Using socket.io and react.js</h3>
                 
@@ -73,7 +73,7 @@ var Message = React.createClass({
     render: function() {
         return (
             <p>
-                <em>{this.props.user}</em> - {this.props.text}
+                <span className="date">[{this.props.date.getHours()}:{this.props.date.getMinutes()}:{this.props.date.getSeconds()}] </span><em>{this.props.user}</em> - {this.props.text}
             </p>
         );
     }
@@ -83,7 +83,7 @@ var MessageList = React.createClass({
     render: function() {
         var messageNodes = this.props.messages.map(function(message) {
             return (
-                <Message user={message.user} text={message.text} />
+                <Message date={message.date} user={message.user} text={message.text} />
             );
         });
         return (
